@@ -15,6 +15,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <cassert>
 #include <exception>
 
 namespace jk {
@@ -26,25 +27,33 @@ namespace jk {
      */
     class Socket {
     public:
-        Socket();
+        Socket(string serverIP, int portnu);
         Socket(const Socket& orig);
         virtual ~Socket();
 
-        /** create a new socket */
-        void create();
-        /** bind to socket */
-        void bind();
-        /** listen for connect */
-        void listen();
+        /** listen for connect  */
+        void run();
+        
     private:
         /** socket id */
-        int socketfd;
+        int socketfd, socketcli;
         /** port number */
         int portnu;
+        /** server IPV4 */
+        string serverIP;
         /** server address information */
         struct sockaddr_in server_addr;
         /** remote address information */
         struct sockaddr_in client_addr;
+        /** socket client len*/
+        socklen_t clientlen;
+        
+        /** create a new socket */
+        void create();
+        /** bind to socket server */
+        void bindServer();
+        /** close connection */
+        void closeConnection(int socketID);
     };
 
     /**
