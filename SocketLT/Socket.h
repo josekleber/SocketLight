@@ -34,6 +34,8 @@ namespace jk {
         /** listen for connect  */
         void run();
         
+        virtual void onRead(){};
+        
     private:
         /** socket id */
         int socketfd, socketcli;

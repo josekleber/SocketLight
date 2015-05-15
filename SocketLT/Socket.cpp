@@ -25,6 +25,9 @@ namespace jk {
     }
 
     Socket::~Socket() {
+        // has connection
+        if (socketfd > 0)
+            closeConnection(socketfd);
     }
 
     void Socket::create() {
@@ -49,8 +52,8 @@ namespace jk {
             throw new SocketException("ERROR - bind failed.");
 
     }
-    
-    void Socket::closeConnection(int socketID){
+
+    void Socket::closeConnection(int socketID) {
         close(socketID);
     }
 
@@ -72,10 +75,20 @@ namespace jk {
             if (socketcli < 0)
                 throw new SocketException("ERROR - acept connection failed.");
 
-            printf("got connection from IP %s:%d\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+            int pid = fork();
+            switch (pid) {
+                case 0:
+                    this->onRead();
+                    closeConnection(socketcli);
+                    break;
+                case -1:
+                    throw new SocketException("ERRO - fork for read socket failed.");
+                default:
+                    printf("got connection from IP %s:%d\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+            }
 
         }
-        
+
         closeConnection(socketfd);
     }
 }
